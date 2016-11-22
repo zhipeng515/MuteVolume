@@ -9,7 +9,7 @@
 #pragma comment(lib, "Winmm.lib")
 #pragma comment(lib, "dsound.lib")
 
-BOOL g_bMute;
+BOOL MuteVolume_XP::MUTE = FALSE;
 
 DWORD  RealFuncPtr_CreateSoudBuffer;
 DWORD* HookFuncPtr_CreateSoundBuffer = NULL;
@@ -20,7 +20,7 @@ typedef MMRESULT (WINAPI *FuncDefine_waveOutWrite)(HWAVEOUT hwo, LPWAVEHDR pwh, 
 FuncDefine_waveOutWrite Real_waveOutWrite = waveOutWrite;
 MMRESULT WINAPI Hook_waveOutWrite(HWAVEOUT hwo, LPWAVEHDR pwh, UINT cbwh)
 {
-	if (g_bMute) 
+	if (MuteVolume_XP::MUTE)
 		memset(pwh->lpData, 0, pwh->dwBufferLength);
 	return  Real_waveOutWrite(hwo, pwh, cbwh);
 }
@@ -30,7 +30,7 @@ typedef MMRESULT (WINAPI *FuncDefine_midiStreamOut)(HMIDISTRM hMidiStream, LPMID
 FuncDefine_midiStreamOut Real_midiStreamOut = midiStreamOut;
 MMRESULT WINAPI Hook_midiStreamOut(HMIDISTRM hMidiStream, LPMIDIHDR lpMidiHdr, UINT cbMidiHdr)
 {
-	if (g_bMute) 
+	if (MuteVolume_XP::MUTE)
 		memset(lpMidiHdr->lpData, 0, lpMidiHdr->dwBufferLength);
 	return  Real_midiStreamOut(hMidiStream, lpMidiHdr, cbMidiHdr);
 }
@@ -92,7 +92,7 @@ HRESULT WINAPI Hook_CreateSoundBuffer(LPVOID pDS, LPCDSBUFFERDESC lpDSBufferDesc
 HRESULT WINAPI Hook_DirectSoundBuffer_Unlock(LPVOID pDirectSoundBuffer, LPVOID lp1, DWORD dw1, LPVOID lp2, DWORD dw2)
 {
 	HRESULT hr;
-	if (g_bMute)
+	if (MuteVolume_XP::MUTE)
 	{
 		memset(lp1, 0, dw1);
 		memset(lp2, 0, dw2);
@@ -128,12 +128,12 @@ void MuteVolume_XP::Uninit()
 
 void MuteVolume_XP::Mute(BOOL bMute)
 {
-	g_bMute = bMute;
+	MUTE = bMute;
 }
 
 BOOL MuteVolume_XP::isMuted()
 {
-	return g_bMute;
+	return MUTE;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////

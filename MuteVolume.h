@@ -18,6 +18,8 @@ public:
 	virtual void Uninit();
 	virtual void Mute(BOOL bMute);
 	virtual BOOL isMuted();
+
+	static BOOL MUTE;
 };
 
 class MuteVolume_WinVista : public MuteVolume
