@@ -1,15 +1,16 @@
 #include "stdafx.h"
 
 #include "MuteVolume.h"
-#include "DetoursWrapper.h"
+#include "../../CommonFunction/DetoursWrapper.h"
 #include "CCoreAudioVolume.h"
 #include <dsound.h>
-#include "Utility.h"
+#include "../../CommonFunction/Utility.h"
 #include <MMSystem.h>
+
 #pragma comment(lib, "Winmm.lib")
 #pragma comment(lib, "dsound.lib")
 
-BOOL MuteVolume_XP::MUTE = FALSE;
+bool MuteVolume_XP::MUTE = FALSE;
 
 DWORD  RealFuncPtr_CreateSoudBuffer;
 DWORD* HookFuncPtr_CreateSoundBuffer = NULL;
@@ -126,12 +127,12 @@ void MuteVolume_XP::Uninit()
 	Detours::Instance()->Detach(Real_DirectSoundCreate, Hook_DirectSoundCreate);
 }
 
-void MuteVolume_XP::Mute(BOOL bMute)
+void MuteVolume_XP::Mute(bool bMute)
 {
 	MUTE = bMute;
 }
 
-BOOL MuteVolume_XP::isMuted()
+bool MuteVolume_XP::isMuted()
 {
 	return MUTE;
 }
@@ -149,13 +150,13 @@ void MuteVolume_WinVista::Uninit()
 	CCoreAudioVolume::Uninitialize();
 }
 
-void MuteVolume_WinVista::Mute(BOOL bMute)
+void MuteVolume_WinVista::Mute(bool bMute)
 {
 	CCoreAudioVolume::EnableSound(!bMute);
 }
 
 
-BOOL MuteVolume_WinVista::isMuted()
+bool MuteVolume_WinVista::isMuted()
 {
 	return !CCoreAudioVolume::IsEnableSound();
 }
@@ -176,12 +177,12 @@ MuteVolumeManager::~MuteVolumeManager()
 	delete mMuteVolume;
 }
 
-void MuteVolumeManager::Mute(BOOL bMute)
+void MuteVolumeManager::Mute(bool bMute)
 {
 	mMuteVolume->Mute(bMute);
 }
 
-BOOL MuteVolumeManager::isMuted()
+bool MuteVolumeManager::isMuted()
 {
 	return mMuteVolume->isMuted();
 }
