@@ -132,8 +132,10 @@
     <Text Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\CommonFunction\DetoursWrapper.h" />
+    <ClInclude Include="..\..\CommonFunction\Singleton.h" />
+    <ClInclude Include="..\..\CommonFunction\Utility.h" />
     <ClInclude Include="CCoreAudioVolume.h" />
-    <ClInclude Include="DetoursWrapper.h" />
     <ClInclude Include="MuteVolume.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />

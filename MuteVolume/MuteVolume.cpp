@@ -1,14 +1,15 @@
 #include "stdafx.h"
 
 #include "MuteVolume.h"
-#include "../../CommonFunction/DetoursWrapper.h"
 #include "CCoreAudioVolume.h"
-#include <dsound.h>
-#include "../../CommonFunction/Utility.h"
-#include <MMSystem.h>
 
-#pragma comment(lib, "Winmm.lib")
+#include "../../CommonFunction/DetoursWrapper.h"
+#include "../../CommonFunction/Utility.h"
+
+#include <dsound.h>
+#include <MMSystem.h>
 #pragma comment(lib, "dsound.lib")
+#pragma comment(lib, "Winmm.lib")
 
 bool MuteVolume_XP::MUTE = FALSE;
 
@@ -38,7 +39,9 @@ MMRESULT WINAPI Hook_midiStreamOut(HMIDISTRM hMidiStream, LPMIDIHDR lpMidiHdr, U
 
 
 typedef HRESULT (WINAPI *FuncDefine_DirectSoundCreate)(__in_opt LPCGUID pcGuidDevice, __deref_out LPDIRECTSOUND *ppDS, __null LPUNKNOWN pUnkOuter);
-FuncDefine_DirectSoundCreate Real_DirectSoundCreate = DirectSoundCreate;
+FuncDefine_DirectSoundCreate Real_DirectSoundCreate;
+typedef HRESULT(WINAPI *FuncDefine_DirectSoundCreate8)(__in_opt LPCGUID pcGuidDevice, __deref_out LPDIRECTSOUND8 *ppDS, __null LPUNKNOWN pUnkOuter);
+FuncDefine_DirectSoundCreate8 Real_DirectSoundCreate8;
 
 HRESULT WINAPI Hook_CreateSoundBuffer(LPVOID pDS, LPCDSBUFFERDESC lpDSBufferDesc, LPDIRECTSOUNDBUFFER* ppDirectSoundBuffer, LPUNKNOWN pUnkOuter);
 HRESULT WINAPI Hook_DirectSoundBuffer_Unlock(LPVOID pDirectSoundBuffer, LPVOID lp1, DWORD dw1, LPVOID lp2, DWORD dw2);
@@ -49,10 +52,15 @@ HRESULT WINAPI Hook_DirectSoundCreate(__in_opt LPCGUID pcGuidDevice, __deref_out
 	if (HookFuncPtr_CreateSoundBuffer == NULL)
 	{
 		const int nFuncAddressIndex = 3;
-		HookFuncPtr_CreateSoundBuffer = (DWORD*)(*((DWORD*)&ppDS) + 4 * nFuncAddressIndex);
+		HookFuncPtr_CreateSoundBuffer = (DWORD*)(*((DWORD*)*ppDS) + 4 * nFuncAddressIndex);
 
 		DWORD dwRet;
-		VirtualProtectEx((HANDLE)-1, HookFuncPtr_CreateSoundBuffer, 4, 64, &dwRet);
+		HANDLE hProcess = ::OpenProcess(PROCESS_VM_OPERATION | PROCESS_VM_WRITE, FALSE, GetCurrentProcessId());
+		if (NULL == hProcess)
+		{
+			return S_FALSE;
+		}
+		VirtualProtectEx(hProcess, HookFuncPtr_CreateSoundBuffer, 4, PAGE_EXECUTE_READWRITE, &dwRet);
 		RealFuncPtr_CreateSoudBuffer = *HookFuncPtr_CreateSoundBuffer;
 		*HookFuncPtr_CreateSoundBuffer = (DWORD)Hook_CreateSoundBuffer;
 	}
@@ -64,7 +72,8 @@ HRESULT WINAPI Hook_CreateSoundBuffer(LPVOID pDS, LPCDSBUFFERDESC lpDSBufferDesc
 {
 	HRESULT hr;
 
-	DWORD dwpDirectSoundBuffer = (DWORD)ppDirectSoundBuffer;
+	IDirectSoundBuffer *pDirectSoundBuffer;
+	DWORD dwpDirectSoundBuffer = (DWORD)&pDirectSoundBuffer;
 	__asm
 	{
 		push pUnkOuter
@@ -75,14 +84,21 @@ HRESULT WINAPI Hook_CreateSoundBuffer(LPVOID pDS, LPCDSBUFFERDESC lpDSBufferDesc
 		call eax
 		mov hr, eax
 	}
+	*ppDirectSoundBuffer = pDirectSoundBuffer;
 
 	if (HookFuncPtr_DirectSoundBuffer_UnLock == NULL)
 	{
 		const int nFuncAddressIndex = 19;
-		HookFuncPtr_DirectSoundBuffer_UnLock = (DWORD*)(*((DWORD*)(&ppDirectSoundBuffer)) + 4 * nFuncAddressIndex);
+		HookFuncPtr_DirectSoundBuffer_UnLock = (DWORD*)(*((DWORD*)*ppDirectSoundBuffer) + 4 * nFuncAddressIndex);
 
 		DWORD dwRet;
-		VirtualProtectEx((HANDLE)-1, HookFuncPtr_DirectSoundBuffer_UnLock, 4, 64, &dwRet);
+		HANDLE hProcess = ::OpenProcess(PROCESS_VM_OPERATION | PROCESS_VM_WRITE, FALSE, GetCurrentProcessId());
+		if (NULL == hProcess)
+		{
+			return S_FALSE;
+		}
+
+		VirtualProtectEx(hProcess, HookFuncPtr_DirectSoundBuffer_UnLock, 4, PAGE_EXECUTE_READWRITE, &dwRet);
 		RealFuncPtr_DirectSoundBuffer_UnLock = *HookFuncPtr_DirectSoundBuffer_UnLock;
 		*HookFuncPtr_DirectSoundBuffer_UnLock = (DWORD)Hook_DirectSoundBuffer_Unlock;
 	}
@@ -115,9 +131,13 @@ HRESULT WINAPI Hook_DirectSoundBuffer_Unlock(LPVOID pDirectSoundBuffer, LPVOID l
 
 void MuteVolume_XP::Init()
 {
+	Real_DirectSoundCreate = (FuncDefine_DirectSoundCreate)Detours::Instance()->Find("dsound.dll", "DirectSoundCreate");
+	Real_DirectSoundCreate8 = (FuncDefine_DirectSoundCreate8)Detours::Instance()->Find("dsound.dll", "DirectSoundCreate8");
+	
 	Detours::Instance()->Attach(Real_waveOutWrite, Hook_waveOutWrite);
 	Detours::Instance()->Attach(Real_midiStreamOut, Hook_midiStreamOut);
 	Detours::Instance()->Attach(Real_DirectSoundCreate, Hook_DirectSoundCreate);
+	Detours::Instance()->Attach(Real_DirectSoundCreate8, Hook_DirectSoundCreate);
 }
 
 void MuteVolume_XP::Uninit()
@@ -129,12 +149,12 @@ void MuteVolume_XP::Uninit()
 
 void MuteVolume_XP::Mute(bool bMute)
 {
-	MUTE = bMute;
+	MuteVolume_XP::MUTE = bMute;
 }
 
-bool MuteVolume_XP::isMuted()
+bool MuteVolume_XP::IsMuted()
 {
-	return MUTE;
+	return MuteVolume_XP::MUTE;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////
@@ -156,7 +176,7 @@ void MuteVolume_WinVista::Mute(bool bMute)
 }
 
 
-bool MuteVolume_WinVista::isMuted()
+bool MuteVolume_WinVista::IsMuted()
 {
 	return !CCoreAudioVolume::IsEnableSound();
 }
@@ -182,7 +202,7 @@ void MuteVolumeManager::Mute(bool bMute)
 	mMuteVolume->Mute(bMute);
 }
 
-bool MuteVolumeManager::isMuted()
+bool MuteVolumeManager::IsMuted()
 {
-	return mMuteVolume->isMuted();
+	return mMuteVolume->IsMuted();
 }

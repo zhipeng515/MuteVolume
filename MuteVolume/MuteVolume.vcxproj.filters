@@ -13,6 +13,9 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="CommonFunction">
+      <UniqueIdentifier>{a7290c1a-fa73-4d27-a750-b86b73590ed7}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <Text Include="ReadMe.txt" />
@@ -27,11 +30,17 @@
     <ClInclude Include="CCoreAudioVolume.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="DetoursWrapper.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
     <ClInclude Include="MuteVolume.h">
       <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\CommonFunction\DetoursWrapper.h">
+      <Filter>CommonFunction</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\CommonFunction\Singleton.h">
+      <Filter>CommonFunction</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\CommonFunction\Utility.h">
+      <Filter>CommonFunction</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
