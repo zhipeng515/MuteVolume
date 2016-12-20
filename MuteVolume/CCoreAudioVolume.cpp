@@ -162,7 +162,7 @@ HRESULT CCoreAudioVolume::Initlialize(BOOL bEnableSound)
 {
 	m_bEnableSound = bEnableSound;
 
-	CoInitializeEx(NULL, COINIT_MULTITHREADED);
+//	CoInitializeEx(NULL, COINIT_MULTITHREADED);
 
 	HRESULT hr;
 	//ÊµÀý»¯ MMDeviceEnumerator Ã¶¾ÙÆ÷
@@ -214,7 +214,7 @@ HRESULT CCoreAudioVolume::Uninitialize()
 	SAFE_RELEASE(m_pCollection);
 	SAFE_RELEASE(m_pEnumerator);
 
-	CoUninitialize();
+//	CoUninitialize();
 	m_vArrayDevice.clear();
 
 	return S_OK;

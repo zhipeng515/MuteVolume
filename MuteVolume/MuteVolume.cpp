@@ -13,30 +13,25 @@
 
 bool MuteVolume_XP::MUTE = FALSE;
 
+DETOURS_FUNC_DECLARE(MMRESULT, WINAPI, waveOutWrite, HWAVEOUT hwo, LPWAVEHDR pwh, UINT cbwh)
+{
+	if (MuteVolume_XP::MUTE)
+		memset(pwh->lpData, 0, pwh->dwBufferLength);
+	return  DETOURS_FUNC_CALLREAL(waveOutWrite, hwo, pwh, cbwh);
+}
+
+
+DETOURS_FUNC_DECLARE(MMRESULT, WINAPI, midiStreamOut, HMIDISTRM hMidiStream, LPMIDIHDR lpMidiHdr, UINT cbMidiHdr)
+{
+	if (MuteVolume_XP::MUTE)
+		memset(lpMidiHdr->lpData, 0, lpMidiHdr->dwBufferLength);
+	return  DETOURS_FUNC_CALLREAL(midiStreamOut, hMidiStream, lpMidiHdr, cbMidiHdr);
+}
+
 DWORD  RealFuncPtr_CreateSoudBuffer;
 DWORD* HookFuncPtr_CreateSoundBuffer = NULL;
 DWORD  RealFuncPtr_DirectSoundBuffer_UnLock;
 DWORD* HookFuncPtr_DirectSoundBuffer_UnLock = NULL;
-
-typedef MMRESULT (WINAPI *FuncDefine_waveOutWrite)(HWAVEOUT hwo, LPWAVEHDR pwh, UINT cbwh);
-FuncDefine_waveOutWrite Real_waveOutWrite = waveOutWrite;
-MMRESULT WINAPI Hook_waveOutWrite(HWAVEOUT hwo, LPWAVEHDR pwh, UINT cbwh)
-{
-	if (MuteVolume_XP::MUTE)
-		memset(pwh->lpData, 0, pwh->dwBufferLength);
-	return  Real_waveOutWrite(hwo, pwh, cbwh);
-}
-
-
-typedef MMRESULT (WINAPI *FuncDefine_midiStreamOut)(HMIDISTRM hMidiStream, LPMIDIHDR lpMidiHdr, UINT cbMidiHdr);
-FuncDefine_midiStreamOut Real_midiStreamOut = midiStreamOut;
-MMRESULT WINAPI Hook_midiStreamOut(HMIDISTRM hMidiStream, LPMIDIHDR lpMidiHdr, UINT cbMidiHdr)
-{
-	if (MuteVolume_XP::MUTE)
-		memset(lpMidiHdr->lpData, 0, lpMidiHdr->dwBufferLength);
-	return  Real_midiStreamOut(hMidiStream, lpMidiHdr, cbMidiHdr);
-}
-
 
 typedef HRESULT (WINAPI *FuncDefine_DirectSoundCreate)(__in_opt LPCGUID pcGuidDevice, __deref_out LPDIRECTSOUND *ppDS, __null LPUNKNOWN pUnkOuter);
 FuncDefine_DirectSoundCreate Real_DirectSoundCreate;
@@ -134,17 +129,20 @@ void MuteVolume_XP::Init()
 	Real_DirectSoundCreate = (FuncDefine_DirectSoundCreate)Detours::Instance()->Find("dsound.dll", "DirectSoundCreate");
 	Real_DirectSoundCreate8 = (FuncDefine_DirectSoundCreate8)Detours::Instance()->Find("dsound.dll", "DirectSoundCreate8");
 	
-	Detours::Instance()->Attach(Real_waveOutWrite, Hook_waveOutWrite);
-	Detours::Instance()->Attach(Real_midiStreamOut, Hook_midiStreamOut);
-	Detours::Instance()->Attach(Real_DirectSoundCreate, Hook_DirectSoundCreate);
+	DETOURS_FUNC_ATTACH(waveOutWrite);
+	DETOURS_FUNC_ATTACH(midiStreamOut);
+	DETOURS_FUNC_ATTACH(DirectSoundCreate);
+
 	Detours::Instance()->Attach(Real_DirectSoundCreate8, Hook_DirectSoundCreate);
 }
 
 void MuteVolume_XP::Uninit()
 {
-	Detours::Instance()->Detach(Real_waveOutWrite, Hook_waveOutWrite);
-	Detours::Instance()->Detach(Real_midiStreamOut, Hook_midiStreamOut);
-	Detours::Instance()->Detach(Real_DirectSoundCreate, Hook_DirectSoundCreate);
+	DETOURS_FUNC_DETACH(waveOutWrite);
+	DETOURS_FUNC_DETACH(midiStreamOut);
+	DETOURS_FUNC_DETACH(DirectSoundCreate);
+
+	Detours::Instance()->Detach(Real_DirectSoundCreate8, Hook_DirectSoundCreate);
 }
 
 void MuteVolume_XP::Mute(bool bMute)

@@ -2,14 +2,6 @@
 
 #include "../../CommonFunction/Singleton.h"
 
-#ifndef _LIB
-#ifdef _DEBUG
-#pragma comment (lib, "../Debug/MuteVolume.lib")
-#else
-#pragma comment (lib, "../Release/MuteVolume.lib")
-#endif
-#endif
-
 class MuteVolume
 {
 public:
