@@ -5,6 +5,7 @@
 
 #include "../../CommonFunction/DetoursWrapper.h"
 #include "../../CommonFunction/Utility.h"
+#include "../../CommonFunction/StdLog.h"
 
 #include <dsound.h>
 #include <MMSystem.h>
@@ -160,12 +161,14 @@ bool MuteVolume_XP::IsMuted()
 
 void MuteVolume_WinVista::Init()
 {
+	CoInitializeEx(NULL, COINIT_MULTITHREADED);
 	CCoreAudioVolume::Initlialize(TRUE);
 }
 
 void MuteVolume_WinVista::Uninit()
 {
 	CCoreAudioVolume::Uninitialize();
+	CoUninitialize();
 }
 
 void MuteVolume_WinVista::Mute(bool bMute)
@@ -180,16 +183,18 @@ bool MuteVolume_WinVista::IsMuted()
 }
 
 
-MuteVolumeManager::MuteVolumeManager()
+bool MuteVolumeManager::Init()
 {
 	if (Utility::IsWinXP())
 		mMuteVolume = new MuteVolume_XP();
 	else
 		mMuteVolume = new MuteVolume_WinVista();
 	mMuteVolume->Init();
+
+	return true;
 }
 
-MuteVolumeManager::~MuteVolumeManager()
+void MuteVolumeManager::Uninit()
 {
 	mMuteVolume->Uninit();
 	delete mMuteVolume;

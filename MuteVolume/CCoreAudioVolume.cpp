@@ -59,7 +59,7 @@ int CCoreAudioVolume::GetDevicePlayVol(void)
 	HRESULT hr;
 	float fVolume = -1;
 
-	CoInitializeEx(NULL, COINIT_MULTITHREADED);
+//	CoInitializeEx(NULL, COINIT_MULTITHREADED);
 	//ÊµÀı»¯ MMDeviceEnumerator Ã¶¾ÙÆ÷
 	hr = CoCreateInstance(__uuidof(MMDeviceEnumerator), NULL, CLSCTX_ALL, __uuidof(IMMDeviceEnumerator), (void**)&pEnumerator);
 	if (hr != S_OK)
@@ -99,7 +99,7 @@ FreeCollection:
 	SAFE_RELEASE(pCollection);
 FreeEnumerator:
 	SAFE_RELEASE(pEnumerator);
-	CoUninitialize();
+//	CoUninitialize();
 	if (fVolume > 0)
 		return (int)(fVolume * 100);
 	else

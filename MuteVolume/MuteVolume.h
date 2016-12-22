@@ -34,10 +34,10 @@ public:
 class MuteVolumeManager : public Singleton<MuteVolumeManager>
 {
 public:
-	MuteVolumeManager();
-	~MuteVolumeManager();
+	virtual bool Init();
+	virtual void Uninit();
 	void Mute(bool bMute);
-	virtual bool IsMuted();
+	bool IsMuted();
 
 private:
 	MuteVolume * mMuteVolume;
