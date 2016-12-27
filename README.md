@@ -11,3 +11,6 @@
   http://www.pudn.com/downloads493/sourcecode/internet/browser/49636978browser_mute.rar
 
 对上述代码进行了BUG修复及简单封装
+
+依赖
+https://github.com/zhipeng515/CommonFunction.git
