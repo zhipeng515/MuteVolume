@@ -13,4 +13,5 @@
 对上述代码进行了BUG修复及简单封装
 
 依赖
-https://github.com/zhipeng515/CommonFunction.git
+
+* https://github.com/zhipeng515/CommonFunction.git
