@@ -182,6 +182,9 @@ bool MuteVolume_WinVista::IsMuted()
 	return !CCoreAudioVolume::IsEnableSound();
 }
 
+MuteVolumeManager::MuteVolumeManager() : mMuteVolume(NULL)
+{
+}
 
 bool MuteVolumeManager::Init()
 {
@@ -196,8 +199,11 @@ bool MuteVolumeManager::Init()
 
 void MuteVolumeManager::Uninit()
 {
-	mMuteVolume->Uninit();
-	delete mMuteVolume;
+	if (mMuteVolume)
+	{
+		mMuteVolume->Uninit();
+		delete mMuteVolume;
+	}
 }
 
 void MuteVolumeManager::Mute(bool bMute)

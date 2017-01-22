@@ -70,12 +70,12 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <OutDir>$(SolutionDir)..\build\$(Configuration)\$(ProjectName)\</OutDir>
-    <IntDir>$(SolutionDir)..\build\$(Configuration)\$(ProjectName)\</IntDir>
+    <OutDir>$(SolutionDir)..\..\build\$(Configuration)\$(ProjectName)\</OutDir>
+    <IntDir>$(SolutionDir)..\..\build\$(Configuration)\$(ProjectName)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <IntDir>$(SolutionDir)..\build\$(Configuration)\$(ProjectName)\</IntDir>
-    <OutDir>$(SolutionDir)..\build\$(Configuration)\$(ProjectName)\</OutDir>
+    <IntDir>$(SolutionDir)..\..\build\$(Configuration)\$(ProjectName)\</IntDir>
+    <OutDir>$(SolutionDir)..\..\build\$(Configuration)\$(ProjectName)\</OutDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -90,7 +90,7 @@
       <SubSystem>Windows</SubSystem>
     </Link>
     <PostBuildEvent>
-      <Command>xcopy /Y "$(SolutionDir)..\build\$(Configuration)\$(ProjectName)\$(TargetName)$(TargetExt)" "$(SolutionDir)..\lib\$(Configuration)\"</Command>
+      <Command>xcopy /Y "$(SolutionDir)..\..\build\$(Configuration)\$(ProjectName)\$(TargetName)$(TargetExt)" "$(SolutionDir)..\..\lib\$(Configuration)\"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -122,7 +122,7 @@
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
     <PostBuildEvent>
-      <Command>xcopy /Y "$(SolutionDir)..\build\$(Configuration)\$(ProjectName)\$(TargetName)$(TargetExt)" "$(SolutionDir)..\lib\$(Configuration)\"</Command>
+      <Command>xcopy /Y "$(SolutionDir)..\..\build\$(Configuration)\$(ProjectName)\$(TargetName)$(TargetExt)" "$(SolutionDir)..\..\lib\$(Configuration)\"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">

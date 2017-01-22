@@ -34,6 +34,8 @@ public:
 class MuteVolumeManager : public Singleton<MuteVolumeManager>
 {
 public:
+	MuteVolumeManager();
+
 	virtual bool Init();
 	virtual void Uninit();
 	void Mute(bool bMute);
